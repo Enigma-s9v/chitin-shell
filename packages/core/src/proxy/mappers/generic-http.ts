@@ -78,7 +78,7 @@ export class GenericHttpMapper implements ActionMapper {
 
     return {
       status: response.status,
-      headers: Object.fromEntries(response.headers),
+      headers: Object.fromEntries(response.headers as unknown as Iterable<[string, string]>),
       body: responseBody,
     };
   }

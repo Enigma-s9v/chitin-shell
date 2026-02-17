@@ -15,6 +15,9 @@
     "build:cli": "npm run build --workspace=packages/cli",
     "test:cli": "npm run test --workspace=packages/cli"
   },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
   "engines": {
     "node": ">=20.0.0"
   }
