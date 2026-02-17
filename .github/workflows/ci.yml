@@ -24,6 +24,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Build core (required by other packages)
+        run: cd packages/core && npx tsc
+
       - name: Type check (core)
         run: cd packages/core && npx tsc --noEmit
 
@@ -47,13 +50,6 @@ jobs:
 
       - name: Test (cli)
         run: cd packages/cli && npm test
-
-      - name: Build (all packages)
-        run: |
-          cd packages/core && npx tsc
-          cd ../langchain && npx tsc
-          cd ../mcp && npx tsc
-          cd ../cli && npx tsc
 
   docker:
     runs-on: ubuntu-latest
