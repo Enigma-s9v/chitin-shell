@@ -27,8 +27,8 @@ COPY tsconfig.json ./
 COPY docker/services/proxy-server.ts ./docker/services/
 COPY docker/services/shared/ ./docker/services/shared/
 
-# Copy docker tsconfig
-COPY docker/tsconfig.docker.json ./docker/
+# Copy docker tsconfig and package.json (type: module)
+COPY docker/tsconfig.docker.json docker/package.json ./docker/
 
 # Install dependencies and build core
 WORKDIR /build/packages/core
@@ -36,7 +36,7 @@ RUN npm install && npm run build
 
 # Build docker services
 WORKDIR /build/docker
-RUN npm install typescript@5.7 tsx && \
+RUN npm install typescript@5.7 tsx @types/node@20 && \
     mkdir -p node_modules/@chitin-id/shell-core/dist && \
     cp -r /build/packages/core/dist/* node_modules/@chitin-id/shell-core/dist/ && \
     cp /build/packages/core/package.json node_modules/@chitin-id/shell-core/ && \
