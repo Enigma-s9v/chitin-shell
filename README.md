@@ -250,6 +250,10 @@ Policies are defined in JSON (local) or on-chain (Solidity, coming in v0.2):
 
 For a deep dive into the architecture, see [**ARCHITECTURE.md**](./ARCHITECTURE.md).
 
+<p align="center">
+  <img src="./docs/images/architecture.png" alt="Chitin Shell Architecture — Intent, Verify, Execute" width="800" />
+</p>
+
 ```
  User Input
      │
@@ -265,6 +269,14 @@ For a deep dive into the architecture, see [**ARCHITECTURE.md**](./ARCHITECTURE.
      ▲                                  │
      └──── sanitized result ────────────┘
 ```
+
+### The Restaurant Analogy
+
+<p align="center">
+  <img src="./docs/images/restaurant.png" alt="Restaurant analogy — Dining Room (Intent), Kitchen Window (Verify), Kitchen (Execute)" width="800" />
+</p>
+
+The **waiter** (LLM) takes orders in the dining room but never enters the kitchen. The **chef** (Secure Proxy) has the knives, ingredients, and cash register behind a reinforced barrier. Orders pass through a kitchen window where **policy** is checked before cooking begins. Even if a malicious customer tricks the waiter, the chef verifies every order against the rules.
 
 ### Core Principles
 
