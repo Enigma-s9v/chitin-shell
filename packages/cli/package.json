@@ -1,6 +1,6 @@
 {
   "name": "@chitin-id/shell-cli",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0",
   "description": "CLI tool for Chitin Shell — manage policies, vault, and audit logs",
   "type": "module",
   "main": "./dist/index.js",

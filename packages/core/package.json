@@ -1,6 +1,6 @@
 {
   "name": "@chitin-id/shell-core",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0",
   "description": "The missing security layer for AI agents — Intent-Verify-Execute middleware",
   "type": "module",
   "main": "./dist/index.js",

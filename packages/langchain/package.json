@@ -1,6 +1,6 @@
 {
   "name": "@chitin-id/shell-langchain",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0",
   "description": "LangChain adapter for Chitin Shell — secure your LangChain agents with Intent-Verify-Execute",
   "type": "module",
   "main": "./dist/index.js",
@@ -30,7 +30,7 @@
   ],
   "author": "Chitin ID <dev@chitin.id>",
   "peerDependencies": {
-    "@chitin-id/shell-core": ">=0.1.0-alpha.0",
+    "@chitin-id/shell-core": ">=0.1.0",
     "@langchain/core": ">=0.3.0"
   },
   "devDependencies": {

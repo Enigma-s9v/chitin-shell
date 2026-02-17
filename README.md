@@ -289,7 +289,7 @@ Chitin Shell is part of the [**chitin.id**](https://chitin.id) ecosystem:
 | Project | Description | Status |
 |---|---|---|
 | **Chitin ID** | Decentralized AI agent identity (ERC-8004) | Active |
-| **Chitin Shell** | Secure agent middleware (this project) | Development |
+| **Chitin Shell** | Secure agent middleware (this project) | v0.1.0 on npm |
 | **Chitin Registry** | On-chain skill/plugin safety registry | Planned |
 
 ## Compatibility
@@ -298,40 +298,41 @@ Chitin Shell is designed to work as middleware with any agent framework:
 
 | Framework | Integration | Status |
 |---|---|---|
-| LangChain | Callback handler + tool wrapper | 🔨 In progress |
+| LangChain | Callback handler + tool wrapper | ✅ v0.1.0 |
 | CrewAI | Agent executor middleware | 📋 Planned |
 | AutoGPT | Plugin system hook | 📋 Planned |
-| MCP Servers | Proxy gateway | 🔨 In progress |
+| MCP Servers | Proxy gateway | ✅ v0.1.0 |
 | OpenClaw | Skill wrapper | 📋 Planned |
-| Custom agents | SDK + REST API | 🔨 In progress |
+| Custom agents | SDK + REST API | ✅ v0.1.0 |
 
 ## Roadmap
 
-### Phase 1: Process Isolation (v0.1) — No blockchain required
+### Phase 1: Core SDK (v0.1) ✅
 - [x] Docker-based LLM sandbox with network isolation
-- [x] Intent structure specification
-- [x] Local JSON policy engine
+- [x] Intent structure specification + Ed25519 signing
+- [x] Local JSON policy engine (4-tier)
 - [x] Secure Proxy with credential vault
-- [x] Output sanitization (regex + pattern matching)
-- [ ] LangChain integration
-- [ ] MCP gateway mode
-- [ ] CLI tool for policy management
+- [x] Output sanitization (10 patterns)
+- [x] LangChain integration (`@chitin-id/shell-langchain`)
+- [x] MCP gateway mode (`@chitin-id/shell-mcp`)
+- [x] CLI tool (`@chitin-id/shell-cli`)
 
-### Phase 2: On-Chain Policy (v0.2)
-- [ ] Solidity policy contracts (Arbitrum / Base)
-- [ ] ERC-8004 DID integration via Chitin ID
-- [ ] On-chain audit log anchoring
-- [ ] Policy governance (multisig + timelock)
+### Phase 2: On-Chain Policy ✅
+- [x] Solidity policy contracts (AgentPolicy UUPS + PolicyGovernor)
+- [x] ERC-8004 DID integration (`did:chitin:<chainId>:<registry>:<agentId>`)
+- [x] On-chain audit log anchoring (Merkle root)
+- [x] Policy governance (multisig + 24h timelock)
 
-### Phase 3: Zero-Knowledge Verification (v0.3)
-- [ ] ZKP-based Intent provenance verification
-- [ ] Data non-leakage proofs for output sanitization
-- [ ] Skill safety proofs via zkVM static analysis
+### Phase 3: Zero-Knowledge Verification ✅
+- [x] ZKP-based Intent provenance verification
+- [x] Data non-leakage proofs for output sanitization
+- [x] Skill safety proofs (ProofVerifier.sol)
 
-### Phase 4: Advanced (v1.0+)
+### Phase 4: Advanced ✅
+- [x] TEE abstraction (ITeeProvider interface + mock)
+- [x] Multi-agent trust delegation (scoped tokens, chain verification)
+- [x] A2A protocol integration (Ed25519 signed messages, registry, middleware)
 - [ ] GPU TEE support (NVIDIA Confidential Compute)
-- [ ] Multi-agent trust delegation
-- [ ] A2A protocol integration
 - [ ] zkML inference verification (as technology matures)
 
 ## Research Foundation
@@ -377,7 +378,7 @@ We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guideline
 # Install dependencies
 npm install
 
-# Run tests (86 tests across 4 suites)
+# Run tests (561 tests across all packages + contracts)
 cd packages/core && npm test
 
 # Type check

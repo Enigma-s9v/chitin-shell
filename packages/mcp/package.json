@@ -1,6 +1,6 @@
 {
   "name": "@chitin-id/shell-mcp",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0",
   "description": "MCP gateway for Chitin Shell — secure MCP tool calls with policy verification and output sanitization",
   "type": "module",
   "main": "./dist/index.js",
@@ -18,7 +18,7 @@
     "lint": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@chitin-id/shell-core": ">=0.1.0-alpha.0"
+    "@chitin-id/shell-core": ">=0.1.0"
   },
   "devDependencies": {
     "@chitin-id/shell-core": "*",
