@@ -1,0 +1,99 @@
+# ===========================================================================
+# Chitin Shell — Development Docker Compose
+#
+# Extends docker-compose.yml with:
+#   - Hot reload via volume mounts
+#   - Exposed ports for local debugging
+#   - Verbose logging
+#   - No read-only filesystem restrictions
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+# ===========================================================================
+
+services:
+  # -------------------------------------------------------------------------
+  # Agent Container — Development Mode
+  # -------------------------------------------------------------------------
+  agent:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.agent
+      target: builder  # Use build stage with source + ts
+    command: ["npx", "tsx", "--watch", "/build/docker/services/agent-server.ts"]
+    working_dir: /build
+    volumes:
+      - ../packages/core/src:/build/packages/core/src:ro
+      - ./services:/build/docker/services:ro
+    ports:
+      - "3000:3000"
+    read_only: false
+    environment:
+      - AGENT_PORT=3000
+      - POLICY_URL=http://chitin-policy:3100
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+
+  # -------------------------------------------------------------------------
+  # Policy Engine Container — Development Mode
+  # -------------------------------------------------------------------------
+  policy:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.policy
+      target: builder
+    command: ["npx", "tsx", "--watch", "/build/docker/services/policy-server.ts"]
+    working_dir: /build
+    volumes:
+      - ../packages/core/src:/build/packages/core/src:ro
+      - ./services:/build/docker/services:ro
+      - ../config:/build/config:ro
+    ports:
+      - "3100:3100"
+    read_only: false
+    environment:
+      - POLICY_PORT=3100
+      - PROXY_URL=http://chitin-proxy:3200
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+
+  # -------------------------------------------------------------------------
+  # Secure Proxy Container — Development Mode
+  # -------------------------------------------------------------------------
+  proxy:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.proxy
+      target: builder
+    command: ["npx", "tsx", "--watch", "/build/docker/services/proxy-server.ts"]
+    working_dir: /build
+    volumes:
+      - ../packages/core/src:/build/packages/core/src:ro
+      - ./services:/build/docker/services:ro
+    ports:
+      - "3200:3200"
+    read_only: false
+    environment:
+      - PROXY_PORT=3200
+      - VAULT_TYPE=memory
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+      # Dev credentials (NOT real keys)
+      - PROXY_OPENAI_KEY=sk-dev-fake-key-for-testing-only
+      - PROXY_ANTHROPIC_KEY=sk-ant-dev-fake-key-for-testing-only
+      - PROXY_SLACK_TOKEN=xoxb-dev-fake-token-for-testing-only
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'

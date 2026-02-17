@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "tiers": {
+    "tier_0": {
+      "description": "No verification needed — read-only and internal operations",
+      "actions": ["think", "recall", "summarize", "read_file", "read_email"],
+      "verification": "none"
+    },
+    "tier_1": {
+      "description": "Local policy check — low-risk writes to approved targets",
+      "actions": ["send_message", "reply_email", "post_channel"],
+      "verification": "local",
+      "constraints": {
+        "recipient_whitelist": true,
+        "rate_limit": {
+          "max": 30,
+          "window": "1h"
+        }
+      }
+    },
+    "tier_2": {
+      "description": "Enhanced verification — higher-risk operations",
+      "actions": ["send_email_new", "file_write", "api_call", "create_issue"],
+      "verification": "local",
+      "constraints": {
+        "rate_limit": {
+          "max": 10,
+          "window": "1h"
+        }
+      }
+    },
+    "tier_3": {
+      "description": "Human approval required — critical operations",
+      "actions": ["transfer_funds", "change_permissions", "bulk_export", "system_config"],
+      "verification": "human_approval",
+      "multisig": {
+        "required": 1,
+        "timeout": "1h"
+      }
+    }
+  },
+  "rate_limits": {
+    "send_email_new": { "max": 5, "window": "1h" },
+    "file_write": { "max": 10, "window": "1h" },
+    "api_call": { "max": 50, "window": "1h" },
+    "transfer_funds": { "max": 1, "window": "24h" }
+  },
+  "whitelists": {
+    "contacts": [],
+    "domains": [],
+    "actions": []
+  },
+  "blacklists": {
+    "contacts": [],
+    "domains": []
+  }
+}

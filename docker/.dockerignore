@@ -1,0 +1,43 @@
+# ===========================================================================
+# Chitin Shell — Docker Ignore
+# ===========================================================================
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build output
+dist/
+**/dist/
+
+# Test files
+**/*.test.ts
+**/*.spec.ts
+test/
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+docs/
+*.md
+!CLAUDE.md
+
+# Environment files (secrets — NEVER copy into image)
+.env
+.env.*
+!.env.example
+config/.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+.chitin-shell/

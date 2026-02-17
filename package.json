@@ -1,0 +1,21 @@
+{
+  "name": "@chitin-id/shell-root",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "build:core": "npm run build --workspace=packages/core",
+    "test:core": "npm run test --workspace=packages/core",
+    "build:langchain": "npm run build --workspace=packages/langchain",
+    "test:langchain": "npm run test --workspace=packages/langchain",
+    "build:cli": "npm run build --workspace=packages/cli",
+    "test:cli": "npm run test --workspace=packages/cli"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

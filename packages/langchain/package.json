@@ -1,0 +1,54 @@
+{
+  "name": "@chitin-id/shell-langchain",
+  "version": "0.1.0-alpha.0",
+  "description": "LangChain adapter for Chitin Shell — secure your LangChain agents with Intent-Verify-Execute",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "ai-agent",
+    "langchain",
+    "security",
+    "chitin-shell",
+    "intent-verify-execute",
+    "llm-security",
+    "middleware"
+  ],
+  "author": "Chitin ID <dev@chitin.id>",
+  "peerDependencies": {
+    "@chitin-id/shell-core": ">=0.1.0-alpha.0",
+    "@langchain/core": ">=0.3.0"
+  },
+  "devDependencies": {
+    "@chitin-id/shell-core": "*",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chitin-id/chitin-shell.git",
+    "directory": "packages/langchain"
+  },
+  "homepage": "https://chitin.id/shell",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

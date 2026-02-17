@@ -1,0 +1,49 @@
+{
+  "name": "@chitin-id/shell-core",
+  "version": "0.1.0-alpha.0",
+  "description": "The missing security layer for AI agents — Intent-Verify-Execute middleware",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "ai-agent",
+    "security",
+    "credential-isolation",
+    "prompt-injection",
+    "policy-engine",
+    "llm-security"
+  ],
+  "author": "Chitin ID <dev@chitin.id>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chitin-id/chitin-shell.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://chitin.id/shell",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

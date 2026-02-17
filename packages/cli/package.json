@@ -1,0 +1,49 @@
+{
+  "name": "@chitin-id/shell-cli",
+  "version": "0.1.0-alpha.0",
+  "description": "CLI tool for Chitin Shell — manage policies, vault, and audit logs",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "chitin-shell": "./dist/bin.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "ai-agent",
+    "security",
+    "cli",
+    "policy-engine",
+    "chitin-shell"
+  ],
+  "author": "Chitin ID <dev@chitin.id>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chitin-id/chitin-shell.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://chitin.id/shell",
+  "publishConfig": { "access": "public" },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@chitin-id/shell-core": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

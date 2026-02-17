@@ -1,0 +1,78 @@
+# ===========================================================================
+# Chitin Shell — Agent Container (LLM Sandbox)
+#
+# This container has:
+#   - NO API keys or secrets
+#   - NO external network access
+#   - NO access to the proxy container
+#   - Read-only filesystem (except /tmp)
+#
+# It can ONLY create Intents and forward them to the policy engine.
+# ===========================================================================
+
+# --- Stage 1: Build ---
+FROM node:20-slim AS builder
+
+WORKDIR /build
+
+# Copy core package source
+COPY packages/core/package.json packages/core/tsconfig.json ./packages/core/
+COPY packages/core/src/ ./packages/core/src/
+
+# Copy root tsconfig
+COPY tsconfig.json ./
+
+# Copy docker service source
+COPY docker/services/agent-server.ts ./docker/services/
+COPY docker/services/shared/ ./docker/services/shared/
+
+# Copy docker tsconfig
+COPY docker/tsconfig.docker.json ./docker/
+
+# Install dependencies and build core
+WORKDIR /build/packages/core
+RUN npm install && npm run build
+
+# Build docker services
+WORKDIR /build/docker
+RUN npm install typescript@5.7 tsx && \
+    mkdir -p node_modules/@chitin-id/shell-core/dist && \
+    cp -r /build/packages/core/dist/* node_modules/@chitin-id/shell-core/dist/ && \
+    cp /build/packages/core/package.json node_modules/@chitin-id/shell-core/ && \
+    npx tsc -p tsconfig.docker.json
+
+# --- Stage 2: Production ---
+FROM node:20-slim AS production
+
+# Security: run as non-root
+RUN groupadd -r chitin && useradd -r -g chitin -s /bin/false chitin
+
+WORKDIR /app
+
+# Copy compiled core package (preserve dist/ structure for package.json exports)
+COPY --from=builder /build/packages/core/dist/ ./node_modules/@chitin-id/shell-core/dist/
+COPY --from=builder /build/packages/core/package.json ./node_modules/@chitin-id/shell-core/
+
+# Copy compiled service + ESM package.json
+COPY --from=builder /build/docker/dist/agent-server.js ./
+COPY --from=builder /build/docker/dist/shared/ ./shared/
+COPY --from=builder /build/docker/services/package.json ./
+
+# Create tmp directory for the non-root user
+RUN mkdir -p /tmp/chitin && chown chitin:chitin /tmp/chitin
+
+# Switch to non-root user
+USER chitin
+
+# No secrets should be in this container
+ENV NODE_ENV=production
+ENV AGENT_PORT=3000
+# Policy engine address (overridable via docker-compose)
+ENV POLICY_URL=http://chitin-policy:3100
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
+  CMD node -e "const h=require('http');h.get('http://localhost:3000/health',r=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))"
+
+CMD ["node", "agent-server.js"]

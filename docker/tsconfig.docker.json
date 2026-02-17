@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": false,
+    "sourceMap": false,
+    "outDir": "./dist",
+    "rootDir": "./services",
+    "paths": {
+      "@chitin-id/shell-core": ["./node_modules/@chitin-id/shell-core/dist/index.d.ts"]
+    }
+  },
+  "include": [
+    "services/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20, 22]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Type check (core)
+        run: cd packages/core && npx tsc --noEmit
+
+      - name: Type check (langchain)
+        run: cd packages/langchain && npx tsc --noEmit
+
+      - name: Type check (mcp)
+        run: cd packages/mcp && npx tsc --noEmit
+
+      - name: Type check (cli)
+        run: cd packages/cli && npx tsc --noEmit
+
+      - name: Test (core)
+        run: cd packages/core && npm test
+
+      - name: Test (langchain)
+        run: cd packages/langchain && npm test
+
+      - name: Test (mcp)
+        run: cd packages/mcp && npm test
+
+      - name: Test (cli)
+        run: cd packages/cli && npm test
+
+      - name: Build (all packages)
+        run: |
+          cd packages/core && npx tsc
+          cd ../langchain && npx tsc
+          cd ../mcp && npx tsc
+          cd ../cli && npx tsc
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker images
+        run: |
+          docker build -f docker/Dockerfile.agent -t chitin-agent .
+          docker build -f docker/Dockerfile.policy -t chitin-policy .
+          docker build -f docker/Dockerfile.proxy -t chitin-proxy .
+
+      - name: Verify Docker Compose
+        run: docker compose -f docker/docker-compose.yml config

@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chitin.id/schemas/policy/v1.0",
+  "title": "Chitin Shell Policy Configuration",
+  "description": "Deterministic policy rules that gate what Intents are approved",
+  "type": "object",
+  "required": ["version", "tiers"],
+  "properties": {
+    "version": { "type": "string", "minLength": 1 },
+    "tiers": {
+      "type": "object",
+      "required": ["tier_0", "tier_1", "tier_2", "tier_3"],
+      "properties": {
+        "tier_0": { "$ref": "#/$defs/TierConfig" },
+        "tier_1": { "$ref": "#/$defs/TierConfig" },
+        "tier_2": { "$ref": "#/$defs/TierConfig" },
+        "tier_3": { "$ref": "#/$defs/TierConfig" }
+      },
+      "additionalProperties": false
+    },
+    "rate_limits": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/RateLimitRule" }
+    },
+    "whitelists": {
+      "type": "object",
+      "properties": {
+        "contacts": { "type": "array", "items": { "type": "string" } },
+        "domains": { "type": "array", "items": { "type": "string" } },
+        "actions": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "blacklists": {
+      "type": "object",
+      "properties": {
+        "contacts": { "type": "array", "items": { "type": "string" } },
+        "domains": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "TierConfig": {
+      "type": "object",
+      "required": ["description", "actions", "verification"],
+      "properties": {
+        "description": { "type": "string", "minLength": 1 },
+        "actions": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "verification": {
+          "enum": ["none", "local", "on_chain", "human_approval"]
+        },
+        "constraints": {
+          "type": "object",
+          "properties": {
+            "recipient_whitelist": { "type": "boolean" },
+            "rate_limit": { "$ref": "#/$defs/RateLimitRule" }
+          }
+        },
+        "multisig": {
+          "type": "object",
+          "required": ["required", "timeout"],
+          "properties": {
+            "required": { "type": "integer", "minimum": 1 },
+            "timeout": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "RateLimitRule": {
+      "type": "object",
+      "required": ["max", "window"],
+      "properties": {
+        "max": { "type": "integer", "minimum": 1 },
+        "window": { "type": "string", "pattern": "^\\d+[mhd]$" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
