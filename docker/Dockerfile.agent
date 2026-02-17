@@ -56,7 +56,7 @@ COPY --from=builder /build/packages/core/package.json ./node_modules/@chitin-id/
 # Copy compiled service + ESM package.json
 COPY --from=builder /build/docker/dist/agent-server.js ./
 COPY --from=builder /build/docker/dist/shared/ ./shared/
-COPY --from=builder /build/docker/services/package.json ./
+COPY --from=builder /build/docker/package.json ./
 
 # Create tmp directory for the non-root user
 RUN mkdir -p /tmp/chitin && chown chitin:chitin /tmp/chitin

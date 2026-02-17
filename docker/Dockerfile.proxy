@@ -57,7 +57,7 @@ COPY --from=builder /build/packages/core/package.json ./node_modules/@chitin-id/
 # Copy compiled service + ESM package.json
 COPY --from=builder /build/docker/dist/proxy-server.js ./
 COPY --from=builder /build/docker/dist/shared/ ./shared/
-COPY --from=builder /build/docker/services/package.json ./
+COPY --from=builder /build/docker/package.json ./
 
 # Create vault config directory (will be mounted as volume)
 RUN mkdir -p /app/vault && chown chitin:chitin /app/vault
