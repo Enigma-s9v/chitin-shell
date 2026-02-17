@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="https://chitin.id/shell-logo.svg" alt="Chitin Shell" width="200" />
-</p>
-
 <h1 align="center">Chitin Shell</h1>
 
 <p align="center">
@@ -13,7 +9,7 @@
   <a href="#quick-start">Quick Start</a> •
   <a href="#why-chitin-shell">Why?</a> •
   <a href="#architecture">Architecture</a> •
-  <a href="#documentation">Docs</a> •
+  <a href="#ecosystem">Ecosystem</a> •
   <a href="#roadmap">Roadmap</a> •
   <a href="#contributing">Contributing</a>
 </p>
@@ -21,7 +17,7 @@
 <p align="center">
   <a href="https://github.com/chitin-id/chitin-shell/actions"><img src="https://img.shields.io/github/actions/workflow/status/chitin-id/chitin-shell/ci.yml?branch=main&style=flat-square" alt="CI" /></a>
   <a href="https://github.com/chitin-id/chitin-shell/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square" alt="License" /></a>
-  <a href="https://discord.gg/chitin"><img src="https://img.shields.io/discord/0000000000?style=flat-square&label=discord" alt="Discord" /></a>
+  <a href="https://chitin.id/shell"><img src="https://img.shields.io/badge/website-chitin.id%2Fshell-green?style=flat-square" alt="Website" /></a>
 </p>
 
 ---
@@ -248,7 +244,7 @@ Policies are defined in JSON (local) or on-chain (Solidity, coming in v0.2):
 
 ## Architecture
 
-For a deep dive into the architecture, see [**ARCHITECTURE.md**](./ARCHITECTURE.md).
+For a deep dive into the architecture, see the documentation on [**chitin.id/shell**](https://chitin.id/shell).
 
 <p align="center">
   <img src="./docs/images/architecture.png" alt="Chitin Shell Architecture — Intent, Verify, Execute" width="800" />
@@ -350,9 +346,7 @@ Chitin Shell's architecture is grounded in peer-reviewed research:
 | [Guardians of the Agents](https://queue.acm.org/detail.cfm?id=3762990) — Meijer | Formal verification of AI workflows | ACM Queue 2025 |
 | [zkLLM](https://arxiv.org/abs/2404.16109) — Sun et al. | ZKP for LLM inference | ACM CCS 2024 |
 | [ETHOS](https://arxiv.org/abs/2412.17114) — Chaffer et al. | Blockchain governance for AI agents | NeurIPS Workshops 2024 |
-| [ERC-8004](https://eips.ethereum.org/EIPS/eip-8004) — De Rossi et al. | Trustless AI agent identity on Ethereum | EIP Final 2025 |
-
-See the full [Research Landscape Report](./docs/research-landscape.md) for comprehensive coverage.
+| [ERC-8004](https://eips.ethereum.org/EIPS/eip-8004) — De Rossi et al. | Trustless AI agent identity on Ethereum | EIP Draft 2025 |
 
 ## Standards Alignment
 
@@ -396,7 +390,7 @@ npx tsx examples/basic/index.ts
 ## FAQ
 
 **Q: Does this make AI agents completely safe?**
-No. It makes credential theft impossible and limits the blast radius of prompt injection. The LLM can still be tricked into producing malicious Intents—but those Intents are verified before execution. See [ARCHITECTURE.md](./ARCHITECTURE.md#honest-limitations) for an honest assessment.
+No. It makes credential theft impossible and limits the blast radius of prompt injection. The LLM can still be tricked into producing malicious Intents—but those Intents are verified before execution.
 
 **Q: Do I need blockchain to use this?**
 No. Phase 1 works entirely locally with Docker and JSON policies. Blockchain is optional for immutable policy enforcement and audit logging.
@@ -416,9 +410,8 @@ Apache License 2.0 — See [LICENSE](./LICENSE)
 
 ## Links
 
-- 🌐 [chitin.id](https://chitin.id) — Project home
-- 📖 [Documentation](https://docs.chitin.id/shell)
-- 💬 [Discord](https://discord.gg/chitin)
+- 🌐 [chitin.id/shell](https://chitin.id/shell) — Project page
+- 📖 [Documentation](https://chitin.id/docs)
 - 🐦 [Twitter/X](https://x.com/chitin_id)
 - 📧 [security@chitin.id](mailto:security@chitin.id) — Responsible disclosure
 
